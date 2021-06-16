@@ -36,3 +36,4 @@
 *.idb
 *.db-shm
 *.db-wal
+*.exe

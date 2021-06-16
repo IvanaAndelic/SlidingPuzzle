@@ -50,7 +50,6 @@ void CChildView::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
 	
-	CPaintDC dc(this);
 	CBitmap b; b.LoadBitmap(IDB_BITMAP1);
 	CDC memdc; memdc.CreateCompatibleDC(&dc);
 	auto prev = memdc.SelectObject(&b);
