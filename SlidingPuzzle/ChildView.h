@@ -31,6 +31,7 @@ public:
 	// Generated message map functions
 protected:
 	afx_msg void OnPaint();
+	std::vector<HBITMAP> SplitBitmap(HBITMAP bmp, int columns, int rows);
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
