@@ -8,6 +8,9 @@
 #include "ChildView.h"
 #include "resource.h"
 #include <vector>
+#include <cstdlib>
+#include <numeric>
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -47,53 +50,93 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 	return TRUE;
 }
 
-std::vector<HBITMAP> SplitBitmap(HBITMAP bmp, int columns, int rows)
-{
-	// get the bitmap dimensions
-	BITMAP bm;
-	GetObject(bmp, sizeof(BITMAP), &bm);
-	int wd = bm.bmWidth, hgt = bm.bmHeight;
-	int piece_wd = wd / columns;
-	int piece_hgt = hgt / rows;
+int CChildView::divide(int dimension, int max) {
 
-	// Select the given bitmap into a device context.
-	auto hdcScreen = GetDC(NULL);
-	auto hdcBitmap = CreateCompatibleDC(hdcScreen);
-	auto hbmOldBmp = SelectObject(hdcBitmap, bmp);
+	std::vector<int> divisors;
+	if (max > dimension / 2)
+		max = dimension / 2;
 
-	std::vector<HBITMAP> pieces(columns * rows);
-	for (int row = 0; row < rows; row++) {
-		for (int col = 0; col < columns; col++) {
-			// create a device context for a piece and select an appropriately sized bitmap into it
-			auto hdcPiece = CreateCompatibleDC(hdcScreen);
-			auto hbmPiece = CreateCompatibleBitmap(hdcScreen, piece_wd, piece_hgt);
-			auto hbmOldPiece = SelectObject(hdcPiece, hbmPiece);
-
-			// paint a piece of the whole bitmap into the piece bitmap
-			BitBlt(hdcPiece, 0, 0, piece_wd, piece_hgt, hdcBitmap, col * piece_wd, row * piece_hgt, SRCCOPY);
-
-			// cleanup per piece resources we dont need.
-			SelectObject(hdcPiece, hbmOldPiece);
-			DeleteDC(hdcPiece);
-
-			pieces[row * columns + col] = hbmPiece;
+	for (int i = 2; i <= max; ++i) {
+		if (dimension % i == 0) {
+			divisors.push_back(i);
 		}
 	}
+	int n = divisors.size();
+	if (n == 0) return 1;
 
-	SelectObject(hdcBitmap, hbmOldBmp);
-	DeleteDC(hdcBitmap);
-	ReleaseDC(NULL, hdcScreen);
-
-	return pieces;
+	int index = (int)(((rand() * 1.0) / (RAND_MAX + 1)) * n);
+	return divisors[index];
 
 }
+
+void CChildView::shuffle(std::vector<int>& positions) {
+
+	int n = positions.size();
+
+	for (int i = 0; i != n; ++i) {
+		int x = (int)(((rand() * 1.0) / (RAND_MAX + 1)) * (n-i));
+
+		int tmp = positions[x];
+		positions[x] = positions[n - 1];
+		positions[n - 1] = tmp;
+	}
+}
+
+
+
 
 void CChildView::OnPaint() 
 {
-	auto hbm = (HBITMAP)LoadImage(NULL, L"res\\heart.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-	auto pieces = SplitBitmap(hbm, 4, 4);
+	CPaintDC dc(this); // device context for painting
+
+
+	CBitmap b; b.LoadBitmap(IDB_BITMAP1);
+	CDC memdc; memdc.CreateCompatibleDC(&dc);
+	auto prev = memdc.SelectObject(&b);
+	BITMAP bmp; b.GetBitmap(&bmp);
+
+	int height = bmp.bmHeight;
+	int width = bmp.bmWidth;
+
+	int nrows = divide(height, 8);
+	int ncol = divide(width, 8);
+
+	int piece_wd = bmp.bmWidth / ncol;
+	int piece_hg = bmp.bmHeight / nrows;
+
+	int total_size = nrows * ncol;
+
+	std::vector<int> positions(total_size);
+
+	std::iota(positions.begin(), positions.end(), 0);
+
+	shuffle(positions);
+
+	for(int i=0;i!=positions.size();++i){
+		
+		int row_dest = positions[i] / ncol;
+		int col_dest = positions[i] % ncol;
+		int row_src = i / ncol;
+		int col_src = i % ncol;
+
+		int x_src = col_src * piece_wd;
+		int y_src = row_src * piece_hg;
+		int x_dest = col_dest * piece_wd;
+		int y_dest = row_dest * piece_hg;
+		 
+
+          dc.BitBlt(x_dest, y_dest, piece_wd, piece_hg, &memdc, x_src, y_src, SRCCOPY);
+		  dc.SelectObject(prev);
+		 
+		
+	}
+
+	
+	
 	
 }
+
+
 
 
 
