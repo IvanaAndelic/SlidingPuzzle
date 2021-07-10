@@ -71,7 +71,7 @@ int CChildView::divide(int dimension, int max) {
 
 void CChildView::shuffle(std::vector<int>& positions) {
 
-	int n = positions.size();
+	int n = positions.size()-1;//zadnju poziciju smatramo praznim poljem
 
 	for (int i = 0; i != n; ++i) {
 		int x = (int)(((rand() * 1.0) / (RAND_MAX + 1)) * (n-i));
@@ -98,17 +98,20 @@ void CChildView::OnPaint()
 	int height = bmp.bmHeight;
 	int width = bmp.bmWidth;
 
-	int nrows = divide(height, 8);
-	int ncol = divide(width, 8);
+	 nrows = divide(height, 8);
+	 ncol = divide(width, 8);
 
-	int piece_wd = bmp.bmWidth / ncol;
-	int piece_hg = bmp.bmHeight / nrows;
+	 piece_wd = bmp.bmWidth / ncol;
+	 piece_hg = bmp.bmHeight / nrows;
 
 	int total_size = nrows * ncol;
 
-	std::vector<int> positions(total_size);
+	positions.resize(total_size);
 
 	std::iota(positions.begin(), positions.end(), 0);
+
+	empty = positions.size() - 1;
+
 
 	shuffle(positions);
 
@@ -123,10 +126,9 @@ void CChildView::OnPaint()
 		int y_src = row_src * piece_hg;
 		int x_dest = col_dest * piece_wd;
 		int y_dest = row_dest * piece_hg;
-		 
 
-          dc.BitBlt(x_dest, y_dest, piece_wd, piece_hg, &memdc, x_src, y_src, SRCCOPY);
-		  dc.SelectObject(prev);
+		if (i != empty)  dc.BitBlt(x_dest, y_dest, piece_wd, piece_hg, &memdc, x_src, y_src, SRCCOPY);
+		dc.SelectObject(prev);
 		 
 		
 	}
@@ -138,18 +140,48 @@ void CChildView::OnPaint()
 
 
 
-
-
-
-
-
-
-
-
-
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	// TODO: Add your message handler code here and/or call default
+	// TODO: Add your message handler code here and/or call def
+
+
 
 	CWnd::OnLButtonDown(nFlags, point);
+
+	int row = point.y / piece_hg;
+	int col = point.x / piece_wd;
+
+	int empty_row = empty / ncol;
+	int empty_col = empty % ncol;
+
+	bool slide = false;
+
+	switch (abs(row - empty_row)) {
+	case 1:
+		if (col == empty_col)
+			slide = true;
+		break;
+	case 0:
+		if (abs(col - empty_col) == 1)
+			slide = true;
+		break;
+	}
+
+	if (slide) {
+		int old_index = row * ncol + col;
+
+		int tmp = positions[old_index];
+		positions[old_index] = empty;
+		empty = tmp;
+
+		
+
+	
+
+
+	}
+
+	
+	
 }
+

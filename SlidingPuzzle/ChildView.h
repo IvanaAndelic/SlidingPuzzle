@@ -18,6 +18,14 @@ public:
 
 // Attributes
 public:
+	std::vector<int> positions;
+	int empty;
+	int piece_wd;
+	int piece_hg;
+	int nrows;
+	int ncol;
+	bool painted = false;
+
 
 // Operations
 public:
