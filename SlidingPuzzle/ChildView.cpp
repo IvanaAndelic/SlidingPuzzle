@@ -10,6 +10,8 @@
 #include <vector>
 #include <cstdlib>
 #include <numeric>
+#include <random>
+#include <iostream>
 
 
 #ifdef _DEBUG
@@ -50,89 +52,74 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 	return TRUE;
 }
 
+//funkcija divide vraca najveci broj plocica na koje se bitmapa moze podijeliti s obzirom na dimenziju (visina ili sirina)
 int CChildView::divide(int dimension, int max) {
 
-	std::vector<int> divisors;
-	if (max > dimension / 2)
+	if (max > dimension/2) {
 		max = dimension / 2;
 
-	for (int i = 2; i <= max; ++i) {
-		if (dimension % i == 0) {
+	}
+
+	std::vector<int> divisors;
+	for (int i = 1; i <= max; ++i) {
+		if (dimension % i == 0)
 			divisors.push_back(i);
-		}
 	}
-	int n = divisors.size();
-	if (n == 0) return 1;
 
-	int index = (int)(((rand() * 1.0) / (RAND_MAX + 1)) * n);
-	return divisors[index];
+	return divisors[divisors.size() - 1];
 
 }
 
-void CChildView::shuffle(std::vector<int>& positions) {
 
-	int n = positions.size()-1;//zadnju poziciju smatramo praznim poljem
 
-	for (int i = 0; i != n; ++i) {
-		int x = (int)(((rand() * 1.0) / (RAND_MAX + 1)) * (n-i));
-
-		int tmp = positions[x];
-		positions[x] = positions[n - 1];
-		positions[n - 1] = tmp;
-	}
-}
 
 
 
 
 void CChildView::OnPaint() 
 {
-	CPaintDC dc(this); // device context for painting
-
-
+	CPaintDC dc(this);
 	CBitmap b; b.LoadBitmap(IDB_BITMAP1);
 	CDC memdc; memdc.CreateCompatibleDC(&dc);
 	auto prev = memdc.SelectObject(&b);
 	BITMAP bmp; b.GetBitmap(&bmp);
 
-	int height = bmp.bmHeight;
-	int width = bmp.bmWidth;
+	int bitmap_height = bmp.bmHeight;
+	int bitmap_width = bmp.bmWidth;
 
-	 nrows = divide(height, 8);
-	 ncol = divide(width, 8);
+	int nrows = divide(bitmap_height, 8);
+	int ncols = divide(bitmap_width, 8);
 
-	 piece_wd = bmp.bmWidth / ncol;
-	 piece_hg = bmp.bmHeight / nrows;
+	 piece_height = bitmap_height / nrows;
+	 piece_width = bitmap_width / ncols;
 
-	int total_size = nrows * ncol;
+	int number_of_tiles = nrows * ncols;
 
-	positions.resize(total_size);
-
+	positions.resize(number_of_tiles);
 	std::iota(positions.begin(), positions.end(), 0);
+	empty = positions.size() - 1;//prazna ploèica je zadnja
+	std::shuffle(positions.begin(), positions.end(), std::mt19937{ std::random_device{}() });
 
-	empty = positions.size() - 1;
+	
+
+	for (int i = 0; i < positions.size()-1; ++i) {
+
+		int row_dest = positions[i] / ncols;
+		int col_dest = positions[i] % ncols;
+		int row_src = i / ncols;
+		int col_src = i % ncols;
+
+		int x_src = col_src * piece_width;
+		int y_src = row_src * piece_height;
+		int x_dest = col_dest * piece_width;
+		int y_dest = row_dest * piece_height;
 
 
-	shuffle(positions);
 
-	for(int i=0;i!=positions.size();++i){
-		
-		int row_dest = positions[i] / ncol;
-		int col_dest = positions[i] % ncol;
-		int row_src = i / ncol;
-		int col_src = i % ncol;
-
-		int x_src = col_src * piece_wd;
-		int y_src = row_src * piece_hg;
-		int x_dest = col_dest * piece_wd;
-		int y_dest = row_dest * piece_hg;
-
-		if (i != empty)  dc.BitBlt(x_dest, y_dest, piece_wd, piece_hg, &memdc, x_src, y_src, SRCCOPY);
-		dc.SelectObject(prev);
-		 
-		
+         dc.BitBlt(x_dest, y_dest, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
+	     dc.SelectObject(prev);
 	}
-
+	
 	
 	
 	
@@ -148,38 +135,11 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	CWnd::OnLButtonDown(nFlags, point);
 
-	int row = point.y / piece_hg;
-	int col = point.x / piece_wd;
+	//koordinate gdje je korisnik kliknuo
 
-	int empty_row = empty / ncol;
-	int empty_col = empty % ncol;
+	int row = point.y / piece_height;
+	int col = point.x / piece_width;
 
-	bool slide = false;
-
-	switch (abs(row - empty_row)) {
-	case 1:
-		if (col == empty_col)
-			slide = true;
-		break;
-	case 0:
-		if (abs(col - empty_col) == 1)
-			slide = true;
-		break;
-	}
-
-	if (slide) {
-		int old_index = row * ncol + col;
-
-		int tmp = positions[old_index];
-		positions[old_index] = empty;
-		empty = tmp;
-
-		
-
-	
-
-
-	}
 
 	
 	

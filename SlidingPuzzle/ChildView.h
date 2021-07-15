@@ -20,11 +20,9 @@ public:
 public:
 	std::vector<int> positions;
 	int empty;
-	int piece_wd;
-	int piece_hg;
-	int nrows;
-	int ncol;
-	bool painted = false;
+	int piece_width;
+	int piece_height;
+	
 
 
 // Operations
@@ -42,7 +40,6 @@ public:
 protected:
 	afx_msg void OnPaint();
 	int divide(int dimension, int max);
-	void shuffle(std::vector<int>& positions);
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
