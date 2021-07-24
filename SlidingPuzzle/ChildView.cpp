@@ -160,6 +160,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		int old_index = row * ncols + col;
 		positions[old_index] = positions[empty];
 		empty = old_index;
+
+
+		UpdateWindow();
 	}
 
 
