@@ -87,18 +87,24 @@ void CChildView::OnPaint()
 	int bitmap_height = bmp.bmHeight;
 	int bitmap_width = bmp.bmWidth;
 
-	 nrows = divide(bitmap_height, 8);
-	 ncols = divide(bitmap_width, 8);
+	if (!painted) {
 
-	 piece_height = bitmap_height / nrows;
-	 piece_width = bitmap_width / ncols;
+		nrows = divide(bitmap_height, 8);
+		ncols = divide(bitmap_width, 8);
 
-	int number_of_tiles = nrows * ncols;
+		piece_height = bitmap_height / nrows;
+		piece_width = bitmap_width / ncols;
 
-	positions.resize(number_of_tiles);
-	std::iota(positions.begin(), positions.end(), 0);
-	empty = positions.size() - 1;//prazna ploèica je zadnja
-	std::shuffle(positions.begin(), positions.end(), std::mt19937{ std::random_device{}() });
+		int number_of_tiles = nrows * ncols;
+
+		positions.resize(number_of_tiles);
+		std::iota(positions.begin(), positions.end(), 0);
+		empty = positions.size() - 1;//prazna ploèica je zadnja
+		std::shuffle(positions.begin(), positions.end(), std::mt19937{ std::random_device{}() });
+
+		painted = true;
+
+	}
 
 	
 

@@ -24,6 +24,7 @@ public:
 	int piece_height;
 	int nrows;
 	int ncols;
+	bool painted = false;
 	
 
 
