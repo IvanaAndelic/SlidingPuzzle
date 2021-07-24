@@ -87,8 +87,8 @@ void CChildView::OnPaint()
 	int bitmap_height = bmp.bmHeight;
 	int bitmap_width = bmp.bmWidth;
 
-	int nrows = divide(bitmap_height, 8);
-	int ncols = divide(bitmap_width, 8);
+	 nrows = divide(bitmap_height, 8);
+	 ncols = divide(bitmap_width, 8);
 
 	 piece_height = bitmap_height / nrows;
 	 piece_width = bitmap_width / ncols;
@@ -139,6 +139,29 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	int row = point.y / piece_height;
 	int col = point.x / piece_width;
+
+	int empty_row = empty / ncols;
+	int empty_col = empty % ncols;
+
+	bool slide = false;
+
+	switch (abs(row - empty_row)) {
+	case 1:
+		if (abs(col==empty_col))
+			slide = true;
+		break;
+	case 0:
+		if (abs(col-empty_col==1))
+			slide = true;
+		break;
+	}
+
+	if (slide) {
+		int old_index = row * ncols + col;
+		positions[old_index] = positions[empty];
+		empty = old_index;
+	}
+
 
 
 	

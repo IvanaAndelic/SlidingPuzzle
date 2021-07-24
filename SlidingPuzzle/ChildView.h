@@ -22,6 +22,8 @@ public:
 	int empty;
 	int piece_width;
 	int piece_height;
+	int nrows;
+	int ncols;
 	
 
 
