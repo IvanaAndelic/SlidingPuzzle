@@ -95,12 +95,14 @@ void CChildView::OnPaint()
 		piece_height = bitmap_height / nrows;
 		piece_width = bitmap_width / ncols;
 
-		int number_of_tiles = nrows * ncols;
+	    number_of_tiles = nrows * ncols;
 
 		positions.resize(number_of_tiles);
 		std::iota(positions.begin(), positions.end(), 0);
 		empty = positions.size() - 1;//prazna ploèica je zadnja
 		std::shuffle(positions.begin(), positions.end(), std::mt19937{ std::random_device{}() });
+
+		empty = std::distance(positions.begin(), std::find(positions.begin(), positions.end(), number_of_tiles - 1));
 
 		painted = true;
 
@@ -108,12 +110,12 @@ void CChildView::OnPaint()
 
 	
 
-	for (int i = 0; i < positions.size()-1; ++i) {
+	for (int i = 0; i < number_of_tiles; ++i) {
 
-		int row_dest = positions[i] / ncols;
-		int col_dest = positions[i] % ncols;
-		int row_src = i / ncols;
-		int col_src = i % ncols;
+		int row_src = positions[i] / ncols;
+		int col_src = positions[i] % ncols;
+		int row_dest = i / ncols;
+		int col_dest = i % ncols;
 
 		int x_src = col_src * piece_width;
 		int y_src = row_src * piece_height;
@@ -121,10 +123,19 @@ void CChildView::OnPaint()
 		int y_dest = row_dest * piece_height;
 
 
+			if (i == empty) {
+				dc.Rectangle(x_dest, y_dest, x_dest + piece_width, y_dest + piece_height);
+			}
+			else {
+				dc.BitBlt(x_dest, y_dest, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
+			}
 
-         dc.BitBlt(x_dest, y_dest, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
-	     dc.SelectObject(prev);
+
+        // dc.BitBlt(x_dest, y_dest, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
+	    // dc.SelectObject(prev);
 	}
+
+	memdc.SelectObject(prev);
 	
 	
 	
@@ -151,24 +162,53 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	bool slide = false;
 
-	switch (abs(row - empty_row)) {
+
+
+	if (abs(row - empty_row)== 0) {
+		if (abs(col-empty_col)==1) {
+			slide = true;
+		}
+	}
+	else if (row - empty_row == 1) {
+		if (abs(col - empty_col) == 0) {
+			slide = true;
+		}
+	}
+	else if (abs(row - empty_row) == 1) {
+		if (abs(col - empty_col) == 1) {
+			slide = true;
+		}
+	}
+
+	/*switch (abs(row - empty_row)) {
 	case 1:
 		if (abs(col==empty_col))
 			slide = true;
 		break;
 	case 0:
-		if (abs(col-empty_col==1))
+		if (abs(col-empty_col)==1)
 			slide = true;
 		break;
-	}
+	}*/
+
+	
+
+
+
 
 	if (slide) {
+
 		int old_index = row * ncols + col;
+		std::swap(positions[old_index], positions[empty]);
+		Invalidate();
+
+		/*int old_index = row * ncols + col;
 		positions[old_index] = positions[empty];
-		empty = old_index;
+		empty = old_index;*/
 
 
-		UpdateWindow();
+		//CWnd::InvalidateRect(NULL, FALSE);
+		CWnd::UpdateWindow();
 	}
 
 

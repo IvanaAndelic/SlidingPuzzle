@@ -25,6 +25,7 @@ public:
 	int nrows;
 	int ncols;
 	bool painted = false;
+	int number_of_tiles;
 	
 
 
