@@ -70,6 +70,52 @@ int CChildView::divide(int dimension, int max) {
 
 }
 
+void CChildView::init_test(int bmp_width, int bmp_height) {
+
+	nrows = divide(bmp_height, 8);
+	ncols = divide(bmp_width, 8);
+
+	piece_height = bmp_height / nrows;
+	piece_width = bmp_width / ncols;
+
+	number_of_tiles = nrows * ncols;
+
+	positions.resize(number_of_tiles);
+	std::iota(positions.begin(), positions.end(), 0);
+	empty = positions.size() - 3;//prazna ploèica je zadnja
+	//std::shuffle(positions.end()-3, positions.end()-1, std::mt19937{ std::random_device{}() });
+	std::swap(positions[empty + 1], positions[empty]);
+
+
+	//empty = std::distance(positions.begin(), std::find(positions.begin(), positions.end(), number_of_tiles - 1));
+
+	painted = true;
+
+}
+
+
+void CChildView::init_image(int bmp_width, int bmp_height) {
+
+	nrows = divide(bmp_height, 8);
+	ncols = divide(bmp_width, 8);
+
+	piece_height = bmp_height / nrows;
+	piece_width = bmp_width / ncols;
+
+	number_of_tiles = nrows * ncols;
+
+	positions.resize(number_of_tiles);
+	std::iota(positions.begin(), positions.end(), 0);
+	empty = positions.size() - 1;//prazna ploèica je zadnja
+	std::shuffle(positions.begin(), positions.end(), std::mt19937{ std::random_device{}() });
+
+	empty = std::distance(positions.begin(), std::find(positions.begin(), positions.end(), number_of_tiles - 1));
+
+	painted = true;
+
+
+}
+
 
 
 
@@ -89,22 +135,25 @@ void CChildView::OnPaint()
 
 	if (!painted) {
 
-		nrows = divide(bitmap_height, 8);
-		ncols = divide(bitmap_width, 8);
+		init_image(bitmap_width, bitmap_height);
+		//init_test(bitmap_width, bitmap_height);
 
-		piece_height = bitmap_height / nrows;
-		piece_width = bitmap_width / ncols;
+		//nrows = divide(bitmap_height, 8);
+		//ncols = divide(bitmap_width, 8);
 
-	    number_of_tiles = nrows * ncols;
+		//piece_height = bitmap_height / nrows;
+		//piece_width = bitmap_width / ncols;
 
-		positions.resize(number_of_tiles);
-		std::iota(positions.begin(), positions.end(), 0);
-		empty = positions.size() - 1;//prazna ploèica je zadnja
-		std::shuffle(positions.begin(), positions.end(), std::mt19937{ std::random_device{}() });
+	 //   number_of_tiles = nrows * ncols;
 
-		empty = std::distance(positions.begin(), std::find(positions.begin(), positions.end(), number_of_tiles - 1));
+		//positions.resize(number_of_tiles);
+		//std::iota(positions.begin(), positions.end(), 0);
+		//empty = positions.size() - 1;//prazna ploèica je zadnja
+		//std::shuffle(positions.begin(), positions.end(), std::mt19937{ std::random_device{}() });
 
-		painted = true;
+		//empty = std::distance(positions.begin(), std::find(positions.begin(), positions.end(), number_of_tiles - 1));
+
+		//painted = true;
 
 	}
 
@@ -122,12 +171,15 @@ void CChildView::OnPaint()
 		int x_dest = col_dest * piece_width;
 		int y_dest = row_dest * piece_height;
 
+		int x_offset = 100;
+		int y_offset = 100;
 
-			if (i == empty) {
-				dc.Rectangle(x_dest, y_dest, x_dest + piece_width, y_dest + piece_height);
+
+			if (i == empty && !victory) {
+				dc.Rectangle(x_dest+x_offset, y_dest+y_offset, x_dest + piece_width+x_offset, y_dest + piece_height+y_offset);
 			}
 			else {
-				dc.BitBlt(x_dest, y_dest, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
+				dc.BitBlt(x_dest+x_offset, y_dest+y_offset, piece_width, piece_height, &memdc, x_src+x_offset, y_src+y_offset, SRCCOPY);
 			}
 
 
@@ -135,7 +187,9 @@ void CChildView::OnPaint()
 	    // dc.SelectObject(prev);
 	}
 
+	
 	memdc.SelectObject(prev);
+
 	
 	
 	
@@ -169,16 +223,16 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			slide = true;
 		}
 	}
-	else if (row - empty_row == 1) {
+	else if (abs(row - empty_row) == 1) {
 		if (abs(col - empty_col) == 0) {
 			slide = true;
 		}
 	}
-	else if (abs(row - empty_row) == 1) {
+	/*else if (abs(row - empty_row) == 1) {
 		if (abs(col - empty_col) == 1) {
 			slide = true;
 		}
-	}
+	}*/
 
 	/*switch (abs(row - empty_row)) {
 	case 1:
@@ -196,10 +250,15 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 
 
-	if (slide) {
+	if (!victory && slide) {
 
 		int old_index = row * ncols + col;
 		std::swap(positions[old_index], positions[empty]);
+		empty = old_index;
+
+		number_of_moves++;
+
+		victory = test_victory();
 		Invalidate();
 
 		/*int old_index = row * ncols + col;
@@ -209,11 +268,41 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 		//CWnd::InvalidateRect(NULL, FALSE);
 		CWnd::UpdateWindow();
+
+		
+	}
+
+
+	if (victory) {
+		on_victory();
+	
 	}
 
 
 
+
+
+
 	
 	
+}
+
+
+bool CChildView::test_victory() {
+
+	for (int i = 0; i < number_of_tiles; ++i) {
+		if (i!=empty) {
+			if (positions[i] != i)
+				return false;
+		}
+	}
+
+	return true;
+
+}
+
+
+void CChildView::on_victory() {
+
 }
 

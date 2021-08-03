@@ -26,6 +26,8 @@ public:
 	int ncols;
 	bool painted = false;
 	int number_of_tiles;
+	int number_of_moves = 0;
+	bool victory = false;
 	
 
 
@@ -44,6 +46,10 @@ public:
 protected:
 	afx_msg void OnPaint();
 	int divide(int dimension, int max);
+	bool test_victory();
+	void init_image(int bmp_width, int bmp_height);
+	void init_test(int bmp_width, int bmp_height);
+	void on_victory();
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
