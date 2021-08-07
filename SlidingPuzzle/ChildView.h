@@ -28,6 +28,8 @@ public:
 	int number_of_tiles;
 	int number_of_moves = 0;
 	bool victory = false;
+	int x_offset = 0;
+	int y_offset=0;
 	
 
 

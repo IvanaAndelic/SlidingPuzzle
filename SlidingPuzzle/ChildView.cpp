@@ -80,6 +80,9 @@ void CChildView::init_test(int bmp_width, int bmp_height) {
 
 	number_of_tiles = nrows * ncols;
 
+	x_offset = 400;
+	y_offset = 75;
+
 	positions.resize(number_of_tiles);
 	std::iota(positions.begin(), positions.end(), 0);
 	empty = positions.size() - 3;//prazna ploèica je zadnja
@@ -101,6 +104,9 @@ void CChildView::init_image(int bmp_width, int bmp_height) {
 
 	piece_height = bmp_height / nrows;
 	piece_width = bmp_width / ncols;
+
+	x_offset = 400;
+	y_offset = 75;
 
 	number_of_tiles = nrows * ncols;
 
@@ -171,15 +177,14 @@ void CChildView::OnPaint()
 		int x_dest = col_dest * piece_width;
 		int y_dest = row_dest * piece_height;
 
-		int x_offset = 100;
-		int y_offset = 100;
+	   
 
 
 			if (i == empty && !victory) {
 				dc.Rectangle(x_dest+x_offset, y_dest+y_offset, x_dest + piece_width+x_offset, y_dest + piece_height+y_offset);
 			}
 			else {
-				dc.BitBlt(x_dest+x_offset, y_dest+y_offset, piece_width, piece_height, &memdc, x_src+x_offset, y_src+y_offset, SRCCOPY);
+				dc.BitBlt(x_dest+x_offset, y_dest+y_offset, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
 			}
 
 
@@ -208,8 +213,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	//koordinate gdje je korisnik kliknuo
 
-	int row = point.y / piece_height;
-	int col = point.x / piece_width;
+	int row = (point.y-y_offset) / piece_height;
+	int col = (point.x -x_offset)/ piece_width;
 
 	int empty_row = empty / ncols;
 	int empty_col = empty % ncols;
