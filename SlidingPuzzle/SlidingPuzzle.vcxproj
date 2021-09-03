@@ -209,7 +209,9 @@
     <None Include="res\SlidingPuzzle.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\bitmap1.bmp" />
+    <Image Include="res\cvijet.bmp" />
+    <Image Include="res\heart.bmp" />
+    <Image Include="res\lisica.bmp" />
     <Image Include="res\SlidingPuzzle.ico" />
     <Image Include="res\Toolbar.bmp" />
   </ItemGroup>

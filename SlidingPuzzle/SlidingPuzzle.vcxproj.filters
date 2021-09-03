@@ -68,7 +68,13 @@
     <Image Include="res\Toolbar.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\bitmap1.bmp">
+    <Image Include="res\cvijet.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\heart.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\lisica.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
