@@ -28,7 +28,6 @@ public:
 	int ncols;
 	bool painted = false;
 	int number_of_tiles;
-	bool victory = false;
 	int x_default = 400;
 	int y_default = 75;
 	int x_offset = 0;
@@ -58,7 +57,6 @@ protected:
 	afx_msg void OnPaint();
 	int divide(int dimension, int max);
 	void init_image(int bmp_width, int bmp_height, int x0, int y0, bool shuffle1);
-	void init_test(int bmp_width, int bmp_height);
 	void draw_on_the_begining(CPaintDC& dc, CDC& memdc, BITMAP& bmp, int poc_x);
 	void paint_bitmap(CPaintDC& dc, CDC& memdc, CBitmap& b, bool paint_first,
 		int x_bmp_offset, int y_bmp_offset);

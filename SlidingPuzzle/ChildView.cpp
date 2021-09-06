@@ -69,31 +69,6 @@ int CChildView::divide(int dimension, int max) {
 
 }
 
-void CChildView::init_test(int bmp_width, int bmp_height) {
-
-	nrows = divide(bmp_height, 8);
-	ncols = divide(bmp_width, 8);
-
-	piece_height = bmp_height / nrows;
-	piece_width = bmp_width / ncols;
-
-	number_of_tiles = nrows * ncols;
-
-	x_offset = x_default;
-	y_offset = y_default;
-
-	positions.resize(number_of_tiles);
-	std::iota(positions.begin(), positions.end(), 0);
-	empty = positions.size() - 3;//prazna ploèica je zadnja
-	//std::shuffle(positions.end()-3, positions.end()-1, std::mt19937{ std::random_device{}() });
-	std::swap(positions[empty + 1], positions[empty]);
-
-
-	//empty = std::distance(positions.begin(), std::find(positions.begin(), positions.end(), number_of_tiles - 1));
-
-	painted = true;
-
-}
 
 
 void CChildView::init_image(int bmp_width, int bmp_height, int x0, int y0, bool shuffle1 = true)
@@ -198,16 +173,13 @@ void CChildView::paint_bitmap(CPaintDC& dc, CDC& memdc, CBitmap& b, bool paint_f
 
 
 
-		if (i == empty && !victory) {
+		if (i == empty) {
 			dc.Rectangle(x_dest + x_offset, y_dest + y_offset, x_dest + piece_width + x_offset, y_dest + piece_height + y_offset);
 		}
 		else {
 			dc.BitBlt(x_dest + x_offset, y_dest + y_offset, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
 		}
 
-
-		// dc.BitBlt(x_dest, y_dest, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
-		// dc.SelectObject(prev);
 	}
 
 
@@ -230,9 +202,6 @@ void CChildView::OnPaint()
 
 	// odabir bitmape
 
-
-
-	//choice = 0;
 	switch (choice)
 	{
 	case 0:
@@ -253,8 +222,6 @@ void CChildView::OnPaint()
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	// TODO: Add your message handler code here and/or call def
-
 
 
 	CWnd::OnLButtonDown(nFlags, point);
@@ -291,7 +258,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	int row = (point.y - y_offset) / piece_height;
 	int col = (point.x - x_offset) / piece_width;
 
-	// ako 
 
 	int empty_row = empty / ncols;
 	int empty_col = empty % ncols;
@@ -317,19 +283,14 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 
 
-	if (!victory && slide) {
+	if (slide) {
 
 		int old_index = row * ncols + col;
 		std::swap(positions[old_index], positions[empty]);
 		empty = old_index;
 
-	
-
-		
 		Invalidate();
-
-
-		CWnd::UpdateWindow();
+        CWnd::UpdateWindow();
 
 
 	}

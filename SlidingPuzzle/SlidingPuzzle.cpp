@@ -26,7 +26,7 @@ END_MESSAGE_MAP()
 
 CSlidingPuzzleApp::CSlidingPuzzleApp() noexcept
 {
-	// TODO: replace application ID string below with unique ID string; recommended
+	// replace application ID string below with unique ID string; recommended
 	// format for string is CompanyName.ProductName.SubProduct.VersionInformation
 	SetAppID(_T("SlidingPuzzle.AppID.NoVersion"));
 
