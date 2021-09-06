@@ -1,6 +1,3 @@
-
-
-
 // ChildView.cpp : implementation of the CChildView class
 //
 
@@ -82,8 +79,8 @@ void CChildView::init_test(int bmp_width, int bmp_height) {
 
 	number_of_tiles = nrows * ncols;
 
-	x_offset = 400;
-	y_offset = 75;
+	x_offset = x_default;
+	y_offset = y_default;
 
 	positions.resize(number_of_tiles);
 	std::iota(positions.begin(), positions.end(), 0);
@@ -108,8 +105,8 @@ void CChildView::init_image(int bmp_width, int bmp_height, int x0, int y0, bool 
 	piece_height = bmp_height / nrows;
 	piece_width = bmp_width / ncols;
 
-	x_offset = 400 + x0;
-	y_offset = 75 + y0;
+	x_offset = x_default + x0;
+	y_offset = y_default + y0;
 
 	number_of_tiles = nrows * ncols;
 
@@ -128,80 +125,49 @@ void CChildView::init_image(int bmp_width, int bmp_height, int x0, int y0, bool 
 
 }
 
+void CChildView::draw_on_the_begining(CPaintDC& dc, CDC& memdc, BITMAP& bmp, int poc_x)
+{
+	int bitmap_height = bmp.bmHeight;
+	int bitmap_width = bmp.bmWidth;
+	// CRTANJE
+	init_image(bitmap_width, bitmap_height, poc_x, min_y, false);
+	for (int i = 0; i < number_of_tiles; ++i) {
+
+		int row_src = positions[i] / ncols;
+		int col_src = positions[i] % ncols;
+		int row_dest = i / ncols;
+		int col_dest = i % ncols;
+
+		int x_src = col_src * piece_width;
+		int y_src = row_src * piece_height;
+		int x_dest = col_dest * piece_width;
+		int y_dest = row_dest * piece_height;
+
+		dc.BitBlt(x_dest + x_offset, y_dest + y_offset, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
+
+	}
+}
+
 void CChildView::initial_choice(CPaintDC& dc, CDC& memdc, CBitmap& b1, CBitmap& b2, CBitmap& b3)
 {
 	// nacrtati 1. bitmapu, skaliranu, tako da
-	// pocne od koordinata (x_prvi,min_y)
+	// pocne od koordinata (x_first,min_y)
 	auto prev = memdc.SelectObject(&b1);
 	BITMAP bmp1; b1.GetBitmap(&bmp1);
-	int bitmap_height = bmp1.bmHeight;
-	int bitmap_width = bmp1.bmWidth;
-	// CRTANJE
-	init_image(bitmap_width, bitmap_height, x_prvi, min_y);
-	for (int i = 0; i < number_of_tiles; ++i) {
-
-		int row_src = positions[i] / ncols;
-		int col_src = positions[i] % ncols;
-		int row_dest = i / ncols;
-		int col_dest = i % ncols;
-
-		int x_src = col_src * piece_width;
-		int y_src = row_src * piece_height;
-		int x_dest = col_dest * piece_width;
-		int y_dest = row_dest * piece_height;
-
-		dc.BitBlt(x_dest + x_offset, y_dest + y_offset, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
-
-	}
-
-
+	draw_on_the_begining(dc, memdc, bmp1, x_first);
 
 	// nacrtati 2. bitmapu, skaliranu, tako da
-	// pocne od koordinata (x_drugi,min_y)
+	// pocne od koordinata (x_second,min_y)
 	prev = memdc.SelectObject(&b2);
 	BITMAP bmp2; b2.GetBitmap(&bmp2);
-	bitmap_height = bmp2.bmHeight;
-	bitmap_width = bmp2.bmWidth;
-	// CRTANJE
-	init_image(bitmap_width, bitmap_height, x_drugi, min_y);
-	for (int i = 0; i < number_of_tiles; ++i) {
+	draw_on_the_begining(dc, memdc, bmp2, x_second);
 
-		int row_src = positions[i] / ncols;
-		int col_src = positions[i] % ncols;
-		int row_dest = i / ncols;
-		int col_dest = i % ncols;
-
-		int x_src = col_src * piece_width;
-		int y_src = row_src * piece_height;
-		int x_dest = col_dest * piece_width;
-		int y_dest = row_dest * piece_height;
-
-		dc.BitBlt(x_dest + x_offset, y_dest + y_offset, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
-	}
-
-	// nacrtati 3. bitmapu, skaliranu, tako da pocne od koordinata (x_treci,y_min)
+	// nacrtati 3. bitmapu, skaliranu, tako da pocne od koordinata (x_third,y_min)
 	prev = memdc.SelectObject(&b3);
 	BITMAP bmp3; b1.GetBitmap(&bmp3);
-	bitmap_height = bmp3.bmHeight;
-	bitmap_width = bmp3.bmWidth;
 	// CRTANJE
-	init_image(bitmap_width, bitmap_height, x_treci, min_y);
-	for (int i = 0; i < number_of_tiles; ++i) {
-
-		int row_src = positions[i] / ncols;
-		int col_src = positions[i] % ncols;
-		int row_dest = i / ncols;
-		int col_dest = i % ncols;
-
-		int x_src = col_src * piece_width;
-		int y_src = row_src * piece_height;
-		int x_dest = col_dest * piece_width;
-		int y_dest = row_dest * piece_height;
-
-		dc.BitBlt(x_dest + x_offset, y_dest + y_offset, piece_width, piece_height, &memdc, x_src, y_src, SRCCOPY);
-	}
-
-
+	draw_on_the_begining(dc, memdc, bmp3, x_third);
+	memdc.SelectObject(prev);
 }
 
 
@@ -257,8 +223,8 @@ void CChildView::OnPaint()
 	CPaintDC dc(this);
 	CBitmap b; b.LoadBitmap(IDB_BITMAP1);
 	CBitmap b2, b3;
-	//b2.LoadBitmap(IDB_BITMAP2);
-	//b3.LoadBitmap(IDB_BITMAP3);
+	b2.LoadBitmap(IDB_BITMAP2);
+	b3.LoadBitmap(IDB_BITMAP3);
 
 	CDC memdc; memdc.CreateCompatibleDC(&dc);
 
@@ -266,7 +232,7 @@ void CChildView::OnPaint()
 
 
 
-	choice = 1;
+	//choice = 0;
 	switch (choice)
 	{
 	case 0:
@@ -279,7 +245,7 @@ void CChildView::OnPaint()
 		paint_bitmap(dc, memdc, b2, !painted, 0, 0);
 		break;
 	case 3:
-		paint_bitmap(dc, memdc, b2, !painted, 0, 0);
+		paint_bitmap(dc, memdc, b3, !painted, 0, 0);
 	}
 }
 
@@ -299,18 +265,23 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	// postoje tri mogucnosti, ako je korisnik kliknuo na dobar y:
 	if (choice == 0)
 	{
-		if (point.y >= min_y && point.y <= max_y)
+		int x1 = x_first + x_default;
+		int x2 = x_second + x_default;
+		int x3 = x_third + x_default;
+		if (point.y >= min_y + y_default && point.y <= max_y + y_default)
 		{
 			// 1. kliknuo je na 1. slagalicu
-			if (point.x >= x_prvi && point.x <= x_prvi + x_sirina)
+			if (point.x >= x1 && point.x <= x1 + x_width)
 				choice = 1;
 			// 2. kliknuo je na drugu slagalicu
-			if (point.x >= x_drugi && point.x <= x_drugi + x_sirina)
+			if (point.x >= x2 && point.x <= x2 + x_width)
 				choice = 2;
 			// 3. kliknuo je na trecu slagalicu
-			if (point.x >= x_treci && point.x <= x_treci + x_sirina)
+			if (point.x >= x3 && point.x <= x3 + x_width)
 				choice = 3;
 		}
+		Invalidate();
+		CWnd::UpdateWindow();
 		return;
 	}
 
@@ -339,22 +310,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			slide = true;
 		}
 	}
-	/*else if (abs(row - empty_row) == 1) {
-		if (abs(col - empty_col) == 1) {
-			slide = true;
-		}
-	}*/
 
-	/*switch (abs(row - empty_row)) {
-	case 1:
-		if (abs(col==empty_col))
-			slide = true;
-		break;
-	case 0:
-		if (abs(col-empty_col)==1)
-			slide = true;
-		break;
-	}*/
 
 
 
@@ -367,27 +323,19 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		std::swap(positions[old_index], positions[empty]);
 		empty = old_index;
 
-		number_of_moves++;
+	
 
-		victory = test_victory();
+		
 		Invalidate();
 
-		/*int old_index = row * ncols + col;
-		positions[old_index] = positions[empty];
-		empty = old_index;*/
 
-
-		//CWnd::InvalidateRect(NULL, FALSE);
 		CWnd::UpdateWindow();
 
 
 	}
 
 
-	if (victory) {
-		on_victory();
-
-	}
+	
 
 
 
@@ -399,20 +347,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 }
 
 
-bool CChildView::test_victory() {
-
-	for (int i = 0; i < number_of_tiles; ++i) {
-		if (i != empty) {
-			if (positions[i] != i)
-				return false;
-		}
-	}
-
-	return true;
-
-}
 
 
-void CChildView::on_victory() {
 
-}

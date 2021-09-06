@@ -211,9 +211,9 @@
   <ItemGroup>
     <Image Include="res\cvijet.bmp" />
     <Image Include="res\heart.bmp" />
-    <Image Include="res\lisica.bmp" />
     <Image Include="res\SlidingPuzzle.ico" />
     <Image Include="res\Toolbar.bmp" />
+    <Image Include="res\whale.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
